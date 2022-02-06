@@ -36,6 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.GitHubClientWrapper = void 0;
 var github_1 = require("@actions/github");
 var GitHubClientWrapper = /** @class */ (function () {
     function GitHubClientWrapper(context, githubToken) {
@@ -44,14 +45,18 @@ var GitHubClientWrapper = /** @class */ (function () {
         this.owner = context.repo.owner;
         this.repo = context.repo.repo;
     }
-    ;
     GitHubClientWrapper.prototype.get_current_pull_request_number = function () {
-        if (!this.context.payload.issue || !this.context.payload.issue.pull_request) {
-            throw new Error('Issue is not a pull request! No pull request found in context');
+        if (!this.context.payload.issue ||
+            !this.context.payload.issue.pull_request) {
+            if (this.context.payload.pull_request &&
+                this.context.payload.pull_request.number)
+                return this.context.payload.pull_request.number;
+            else
+                throw new Error("Issue is not a pull request! No pull request found in context");
         }
-        return this.context.payload.issue.number;
+        else
+            return this.context.payload.issue.number;
     };
-    ;
     GitHubClientWrapper.prototype.comment_on_pull_request_async = function (pr_number, comment) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -60,7 +65,7 @@ var GitHubClientWrapper = /** @class */ (function () {
                             owner: this.owner,
                             repo: this.repo,
                             issue_number: pr_number,
-                            body: comment
+                            body: comment,
                         })];
                     case 1:
                         _a.sent();
@@ -69,7 +74,6 @@ var GitHubClientWrapper = /** @class */ (function () {
             });
         });
     };
-    ;
     GitHubClientWrapper.prototype.fast_forward_target_to_source_async = function (pr_number) {
         return __awaiter(this, void 0, void 0, function () {
             var pullRequestData;
@@ -81,9 +85,9 @@ var GitHubClientWrapper = /** @class */ (function () {
                         return [4 /*yield*/, this.restClient.git.updateRef({
                                 owner: this.owner,
                                 repo: this.repo,
-                                ref: "heads/" + pullRequestData.base.ref,
+                                ref: "heads/".concat(pullRequestData.base.ref),
                                 sha: pullRequestData.head.sha,
-                                force: false
+                                force: false,
                             })];
                     case 2:
                         _a.sent();
@@ -92,7 +96,6 @@ var GitHubClientWrapper = /** @class */ (function () {
             });
         });
     };
-    ;
     GitHubClientWrapper.prototype.close_pull_request_async = function (pr_number) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -101,7 +104,7 @@ var GitHubClientWrapper = /** @class */ (function () {
                             owner: this.owner,
                             repo: this.repo,
                             pull_number: pr_number,
-                            state: "closed"
+                            state: "closed",
                         })];
                     case 1:
                         _a.sent();
@@ -110,7 +113,6 @@ var GitHubClientWrapper = /** @class */ (function () {
             });
         });
     };
-    ;
     GitHubClientWrapper.prototype.get_pull_request_source_head_async = function (pr_number) {
         return __awaiter(this, void 0, void 0, function () {
             var pullRequestData;
@@ -145,7 +147,7 @@ var GitHubClientWrapper = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.restClient.pulls.get({
                             owner: this.owner,
                             repo: this.repo,
-                            pull_number: pr_number
+                            pull_number: pr_number,
                         })];
                     case 1:
                         getPrResponse = _a.sent();
@@ -154,7 +156,6 @@ var GitHubClientWrapper = /** @class */ (function () {
             });
         });
     };
-    ;
     GitHubClientWrapper.prototype.set_pull_request_status = function (pr_number, new_status) {
         return __awaiter(this, void 0, void 0, function () {
             var pullRequestData, statusResponse;
@@ -168,7 +169,7 @@ var GitHubClientWrapper = /** @class */ (function () {
                                 repo: this.repo,
                                 sha: pullRequestData.head.sha,
                                 state: new_status,
-                                context: "Fast Forward"
+                                context: "Fast Forward",
                             })];
                     case 2:
                         statusResponse = _a.sent();
@@ -185,14 +186,14 @@ var GitHubClientWrapper = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.restClient.repos.getBranch({
                             owner: this.owner,
                             repo: this.repo,
-                            branch: branch_one
+                            branch: branch_one,
                         })];
                     case 1:
                         branchOneData = _a.sent();
                         return [4 /*yield*/, this.restClient.repos.getBranch({
                                 owner: this.owner,
                                 repo: this.repo,
-                                branch: branch_two
+                                branch: branch_two,
                             })];
                     case 2:
                         branchTwoData = _a.sent();
@@ -204,4 +205,3 @@ var GitHubClientWrapper = /** @class */ (function () {
     return GitHubClientWrapper;
 }());
 exports.GitHubClientWrapper = GitHubClientWrapper;
-;
